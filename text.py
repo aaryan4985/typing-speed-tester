@@ -16,35 +16,58 @@ def load_sentences():
         print(f"Error: {e}")
         exit()
 
+# Save score to leaderboard
+def save_to_leaderboard(name, wpm, accuracy):
+    try:
+        with open("leaderboard.txt", "a") as file:
+            file.write(f"{name},{wpm:.2f},{accuracy:.2f}\n")
+    except Exception as e:
+        print(f"Error saving to leaderboard: {e}")
+
+# Display leaderboard
+def display_leaderboard():
+    print("\n--- Leaderboard ---")
+    try:
+        with open("leaderboard.txt", "r") as file:
+            scores = [line.strip().split(",") for line in file.readlines()]
+            scores = sorted(scores, key=lambda x: float(x[1]), reverse=True)  # Sort by WPM
+            print(f"{'Rank':<5}{'Name':<15}{'WPM':<10}{'Accuracy':<10}")
+            for rank, (name, wpm, accuracy) in enumerate(scores[:10], start=1):
+                print(f"{rank:<5}{name:<15}{wpm:<10}{accuracy:<10}")
+    except FileNotFoundError:
+        print("No leaderboard data available yet.")
+    except Exception as e:
+        print(f"Error reading leaderboard: {e}")
+
 def typing_speed_test():
-    # Step 1: Load sentences from file
+    # Load sentences from file
     sentences = load_sentences()
 
-    # Step 2: Choose a random sentence
+    # Choose a random sentence
     sentence = random.choice(sentences)
 
-    # Step 3: Display the sentence
+    # Display the sentence
     print("\nType the following sentence:")
     print(sentence)
 
-    # Step 4: Ask user to start
+    # Ask user to start
     input("\nPress Enter when you're ready to start typing...")
 
-    # Step 5: Record start time
+    # Record start time
     start_time = time.time()
 
-    # Step 6: Get user input for typing the sentence
+    # Get user input for typing the sentence
     typed_sentence = input("\nStart typing here: ")
 
-    # Step 7: Record end time
+    # Record end time
     end_time = time.time()
 
-    # Step 8: Calculate elapsed time and speed
+    # Calculate elapsed time and speed
     elapsed_time = end_time - start_time
     word_count = len(sentence.split())
     wpm = (word_count / elapsed_time) * 60
 
-    # Step 9: Calculate accuracy
+    # Calculate accuracy
     original_words = sentence.split()
     typed_words = typed_sentence.split()
 
@@ -55,11 +78,20 @@ def typing_speed_test():
 
     accuracy = (correct_words / len(original_words)) * 100
 
-    # Step 10: Display results
+    # Display results
     print(f"\nResults:")
     print(f"Time Taken: {elapsed_time:.2f} seconds")
     print(f"Typing Speed: {wpm:.2f} WPM")
     print(f"Accuracy: {accuracy:.2f}%")
+
+    # Get player's name
+    name = input("\nEnter your name for the leaderboard: ")
+
+    # Save to leaderboard
+    save_to_leaderboard(name, wpm, accuracy)
+
+    # Display leaderboard
+    display_leaderboard()
 
 # Run the typing test
 typing_speed_test()
